@@ -270,16 +270,16 @@ feast materialize ...
 
 | Task | Status |
 |------|--------|
-| Initialize Feast Repository |
-| Define Entity |
-| Define Data Source |
-| Define Feature View |
-| Apply Feast Definitions |
-| Materialize Features |
-| Historical Feature Retrieval |
-| Train Decision Tree Model |
-| Online Feature Retrieval |
-| Online Prediction |
+| Initialize Feast Repository | ✅ |
+| Define Entity | ✅ |
+| Define Data Source | ✅ |
+| Define Feature View | ✅ |
+| Apply Feast Definitions | ✅ |
+| Materialize Features | ✅ |
+| Historical Feature Retrieval | ✅ |
+| Train Decision Tree Model | ✅ |
+| Online Feature Retrieval | ✅ |
+| Online Prediction | ✅ |
 | BigQuery Backend | Optional |
 
 ---
