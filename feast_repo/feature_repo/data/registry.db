@@ -1,0 +1,43 @@
+
+>
+
+iris_id"iris_idJ
+feast_repo
+£©ªÒ˜©ÄÍ£©ªÒ˜©ÄÍ
+A
+!
+__dummy"
+__dummy_idJ
+feast_repo
+£©ªÒàêĞÍ£©ªÒàêĞÍ1"$8bd108d9-40f1-4984-a0c8-82943321f26f*¿±ªÒÀ±Ú˜2‹
+¿
+iris_features
+feast_repoiris_id"
+sepal_length"
+sepal_width"
+petal_length"
+petal_width2€ç„:³event_timestamp*created_timestampZ*(data/iris_data_adapted_for_feast.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢iris_source’£©ªÒ€³Ÿê"£©ªÒè†«Í@b
+iris_id’latestG
+£©ªÒˆ–ÚÍ¿±ªÒ¨Ã˜
+äÆ¥ÃØÀôqÜ­ªÒ
+€ô§Æ€º²Æ0R§
+¤
+,feast.infra.online_stores.sqlite.SqliteTable"t
+X/content/22f3001838_MLOPS_WEEKLY_ASSIGNMENT/feast_repo/feature_repo/data/online_store.dbfeast_repo_iris_featuresbÀevent_timestamp*created_timestampZ*(data/iris_data_adapted_for_feast.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢iris_sourceª
+feast_repo’£©ªÒ€³Ÿê"£©ªÒè†«ÍŠ,
+
+
+feast_repo
+£©ªÒÀìôê£©ªÒÀìôê’Ã
+À
+iris_features
+feast_repo"feature_view*à
+¿
+iris_features
+feast_repoiris_id"
+sepal_length"
+sepal_width"
+petal_length"
+petal_width2€ç„:³event_timestamp*created_timestampZ*(data/iris_data_adapted_for_feast.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢iris_source’£©ªÒ€³Ÿê"£©ªÒè†«Í@b
+iris_id’latest
+£©ªÒˆ–ÚÍ£©ªÒˆ–ÚÍ2£©ªÒÂ‚ÎB$c4d4d2f5-ddc0-4e97-96f6-ff3110c3b927
