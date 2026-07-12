@@ -1,292 +1,136 @@
-# IRIS Classification Pipeline with DVC and Google Cloud Storage
+# Project Overview
 
-## Overview
+This repository contains the solution for the **MLOps Week 4 Assignment**. The objective is to implement a complete **Continuous Integration (CI)** pipeline for an Iris Classification Machine Learning project.
 
-This project demonstrates an end-to-end Machine Learning workflow using:
+The project demonstrates:
 
-- Git for source code version control
-- DVC (Data Version Control) for dataset and model versioning
-- Google Cloud Storage (GCS) as the DVC remote storage
-- Google Cloud Compute Engine for cloud execution
-- Scikit-learn for training an IRIS classification model
-
-The objective is to build a fully reproducible ML pipeline where:
-- Git stores code and lightweight metadata.
-- DVC stores datasets and trained models.
-- Google Cloud Storage acts as the remote storage backend.
+- Data Validation using PyTest
+- Model Evaluation using PyTest
+- Dataset & Model Versioning using DVC
+- Google Cloud Storage (GCS) as DVC Remote
+- GitHub Actions based Continuous Integration
+- Workload Identity Federation (WIF) for secure Google Cloud authentication
+- Continuous Machine Learning (CML) based reporting
 
 ---
 
-# Project Structure
+# Repository Structure
 
 ```
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── .dvc/
+│
 ├── data/
-│   └── iris.csv
+│   ├── iris.csv
+│   └── iris.csv.dvc
+│
 ├── model/
 │   └── model.joblib
+│
+├── tests/
+│   ├── test_data.py
+│   └── test_model.py
+│
 ├── train.py
 ├── requirements.txt
-├── .gitignore
-├── .dvc/
-├── .dvcignore
-├── data/iris.csv.dvc
-├── model/model.joblib.dvc
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-# Prerequisites
+# Project Workflow
 
-- Python 3.10+
-- Git
-- Google Cloud SDK
-- Google Cloud Project
-- Google Cloud Storage Bucket
-- DVC with GCS support
-
----
-
-# Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/<username>/<repository>.git
 ```
-
-Move into the project directory.
-
-```bash
-cd <repository>
-```
-
----
-
-# Step 2: Create a Python Virtual Environment
-
-```bash
-python3 -m venv .env
-```
-
-Activate the environment.
-
-```bash
-source .env/bin/activate
+Dataset
+   │
+   ▼
+DVC Remote (Google Cloud Storage)
+   │
+   ▼
+GitHub Repository
+   │
+   ▼
+GitHub Actions
+   │
+   ▼
+Authenticate using Workload Identity Federation
+   │
+   ▼
+dvc pull
+   │
+   ▼
+Run PyTest
+   │
+   ▼
+Generate Test Report
+   │
+   ▼
+CML Pull Request Comment
 ```
 
 ---
 
-# Step 3: Install Dependencies
+# Technologies Used
 
-Upgrade pip.
+- Python 3.12
+- Scikit-Learn
+- Pandas
+- NumPy
+- PyTest
+- DVC
+- Google Cloud Storage
+- GitHub Actions
+- CML
+- Workload Identity Federation
+
+---
+
+# Clone Repository
+
+```bash
+git clone https://github.com/Abhishek-IITM2026/22f3001838_MLOPS_WEEKLY_ASSIGNMENT.git
+
+cd 22f3001838_MLOPS_WEEKLY_ASSIGNMENT
+```
+
+---
+
+# Create Virtual Environment
+
+Linux / MacOS
+
+```bash
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
+
+Windows
+
+```powershell
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+---
+
+# Install Dependencies
 
 ```bash
 pip install --upgrade pip
-```
 
-Install project dependencies.
-
-```bash
 pip install -r requirements.txt
 ```
 
-Install DVC with Google Cloud Storage support.
-
-```bash
-pip install "dvc[gs]"
-```
-
 ---
 
-# Step 4: Authenticate Google Cloud
-
-Login.
-
-```bash
-gcloud auth login
-```
-
-Set your project.
-
-```bash
-gcloud config set project PROJECT_ID
-```
-
-Verify.
-
-```bash
-gcloud config list
-```
-
----
-
-# Step 5: Configure DVC Remote
-
-Verify the configured remote.
-
-```bash
-dvc remote list
-```
-
-Example output
-
-```
-storage gs://your-bucket-name
-```
-
-If the remote is missing, add it.
-
-```bash
-dvc remote add -d storage gs://your-bucket-name
-```
-
----
-
-# Step 6: Download Dataset and Model
-
-Download all DVC tracked files.
-
-```bash
-dvc pull
-```
-
-or restore from the local cache.
-
-```bash
-dvc checkout
-```
-
----
-
-# Step 7: Verify Dataset
-
-Check the dataset.
-
-```bash
-head data/iris.csv
-```
-
-Count rows.
-
-```bash
-wc -l data/iris.csv
-```
-
----
-
-# Step 8: Train the Model
-
-Run the training script.
-
-```bash
-python train.py
-```
-
-The trained model will be saved as
-
-```
-model/model.joblib
-```
-
----
-
-# Step 9: Track Dataset with DVC
-
-If the dataset changes,
-
-```bash
-dvc add data/iris.csv
-```
-
----
-
-# Step 10: Track Model with DVC
-
-```bash
-dvc add model/model.joblib
-```
-
----
-
-# Step 11: Push Data to Google Cloud Storage
-
-```bash
-dvc push
-```
-
----
-
-# Step 12: Commit Changes to Git
-
-Add project files.
-
-```bash
-git add .
-```
-
-Commit.
-
-```bash
-git commit -m "Update ML pipeline"
-```
-
-Push to GitHub.
-
-```bash
-git push origin main
-```
-
----
-
-# Step 13: Switch Between Versions
-
-View Git history.
-
-```bash
-git log --oneline
-```
-
-Checkout an older commit.
-
-```bash
-git checkout <commit-hash>
-```
-
-Restore dataset and model.
-
-```bash
-dvc checkout
-```
-
-or
-
-```bash
-dvc pull
-```
-
-Verify the restored dataset.
-
-```bash
-wc -l data/iris.csv
-```
-
----
-
-# Step 14: Return to the Latest Version
-
-```bash
-git checkout main
-```
-
-Restore the latest files.
-
-```bash
-dvc checkout
-```
-
----
-
-# DVC Commands
+# Configure DVC
 
 Initialize DVC
 
@@ -294,116 +138,284 @@ Initialize DVC
 dvc init
 ```
 
-Track dataset
+Verify Remote
 
 ```bash
-dvc add data/iris.csv
+cat .dvc/config
 ```
 
-Track model
+Expected
 
-```bash
-dvc add model/model.joblib
+```ini
+[core]
+    remote = myremote
+
+['remote "myremote"']
+    url = gs://22f3001838-mlops-week2/dvcstore
 ```
 
-Push files
+---
 
-```bash
-dvc push
-```
-
-Pull files
+# Pull Dataset and Model
 
 ```bash
 dvc pull
 ```
 
-Restore files
+Expected Output
 
-```bash
-dvc checkout
 ```
-
-List remote
-
-```bash
-dvc remote list
+Everything is up to date.
 ```
 
 ---
 
-# Git Commands
-
-Clone repository
+# Train Model
 
 ```bash
-git clone <repository-url>
-```
-
-Check repository status
-
-```bash
-git status
-```
-
-Commit changes
-
-```bash
-git commit -m "message"
-```
-
-Push changes
-
-```bash
-git push origin main
-```
-
-View commit history
-
-```bash
-git log --oneline
-```
-
-Switch commits
-
-```bash
-git checkout <commit-hash>
-```
-
----
-
-# Technologies Used
-
-- Python
-- Scikit-learn
-- Git
-- DVC
-- Google Cloud Platform
-- Google Cloud Storage
-- Google Compute Engine
-
----
-
-# Reproducibility
-
-A reviewer can reproduce the project by executing the following commands:
-
-```bash
-git clone https://github.com/<username>/<repository>.git
-
-cd <repository>
-
-python3 -m venv .env
-
-source .env/bin/activate
-
-pip install -r requirements.txt
-
-pip install "dvc[gs]"
-
-dvc pull
-
 python train.py
 ```
 
-The repository contains only code and DVC metadata. All large datasets and trained models are stored in Google Cloud Storage and retrieved using DVC.
+or
+
+```bash
+python train.py 2
+```
+
+---
+
+# Run Tests
+
+Run complete test suite
+
+```bash
+pytest -v
+```
+
+Run Data Validation Tests
+
+```bash
+pytest tests/test_data.py -v
+```
+
+Run Model Evaluation Tests
+
+```bash
+pytest tests/test_model.py -v
+```
+
+Expected Output
+
+```
+=====================
+8 passed
+=====================
+```
+
+---
+
+# Data Validation Tests
+
+The following validations are implemented:
+
+- Dataset exists
+- Schema validation
+- Missing value validation
+- Numeric feature validation
+- Species label validation
+- Numeric value validation
+
+---
+
+# Model Evaluation Tests
+
+The following validations are implemented:
+
+- Model exists
+- Model loads successfully
+- Model prediction
+- Accuracy threshold verification
+
+---
+
+# Continuous Integration
+
+GitHub Actions automatically executes on:
+
+- Every Push
+- Every Pull Request
+
+Workflow performs:
+
+1. Checkout Repository
+2. Setup Python
+3. Install Dependencies
+4. Authenticate to Google Cloud
+5. Setup gcloud
+6. Pull DVC Data
+7. Execute PyTest
+8. Generate Report
+9. Publish CML Comment
+
+---
+
+# Workload Identity Federation
+
+GitHub Actions authenticates to Google Cloud using **Workload Identity Federation** instead of Service Account JSON Keys.
+
+Advantages:
+
+- No long-lived credentials
+- Improved security
+- Recommended authentication method by Google Cloud
+
+---
+
+# Google Cloud Services Used
+
+- Google Cloud Storage
+- IAM
+- Workload Identity Federation
+- Cloud Shell
+
+---
+
+# DVC Remote
+
+```
+Google Cloud Storage
+
+Bucket:
+gs://22f3001838-mlops-week2
+
+Directory:
+dvcstore
+```
+
+---
+
+# GitHub Actions Workflow
+
+Location
+
+```
+.github/workflows/ci.yml
+```
+
+Main Steps
+
+- Checkout Repository
+- Setup Python
+- Install Dependencies
+- Authenticate Google Cloud
+- DVC Pull
+- Run Tests
+- Generate Report
+- CML Report
+
+---
+
+# CI Trigger
+
+```yaml
+on:
+  push:
+    branches:
+      - "**"
+
+  pull_request:
+    branches:
+      - "**"
+```
+
+---
+
+# Example Workflow
+
+```
+Developer Push
+
+        │
+
+        ▼
+
+GitHub Repository
+
+        │
+
+        ▼
+
+GitHub Actions
+
+        │
+
+        ▼
+
+Authenticate
+
+        │
+
+        ▼
+
+DVC Pull
+
+        │
+
+        ▼
+
+PyTest
+
+        │
+
+        ▼
+
+Generate Report
+
+        │
+
+        ▼
+
+Pull Request Comment
+```
+
+---
+
+# Results
+
+✔ Data Validation Tests Passed
+
+✔ Model Evaluation Tests Passed
+
+✔ DVC Integration Successful
+
+✔ Google Cloud Authentication Successful
+
+✔ GitHub Actions Successful
+
+✔ CI Pipeline Successful
+
+---
+
+# Future Improvements
+
+- Docker Containerization
+- MLflow Integration
+- Automated Model Deployment
+- Continuous Training
+- Monitoring using Vertex AI
+
+---
+
+# Author
+
+**Abhishek Dutta**
+
+Roll Number: **22f3001838**
+
+IIT Madras BS Degree Programme
+
+---
+
+# License
+
+This project has been developed for the **IIT Madras MLOps Weekly Assignment**.
