@@ -1,4 +1,0 @@
-[core]
-    remote = myremote
-['remote "myremote"']
-    url = gs://22f3001838-mlops-week2/dvcstore
