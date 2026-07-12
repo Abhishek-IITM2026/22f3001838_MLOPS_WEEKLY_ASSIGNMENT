@@ -9,17 +9,15 @@ on:
     branches:
       - "**"
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      pull-requests: write
-
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -33,18 +31,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      - name: Install gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Pull DVC Data
+      - name: Verify Installation
         run: |
-          dvc pull --force
+          python --version
+          pip --version
+          pytest --version
 
-      - name: Run Tests
+      - name: Run Data & Model Tests
         run: |
-          pytest -v
+          pytest -v | tee report.txt
+
+      - name: Generate Test Report
+        run: |
+          echo "# CI Test Report" > report.md
+          echo "" >> report.md
+          echo "## Pytest Output" >> report.md
+          echo '```' >> report.md
+          cat report.txt >> report.md
+          echo '```' >> report.md
+
+      - name: Install CML
+        run: |
+          npm install -g @dvcorg/cml
+
+      - name: Comment on Pull Request
+        if: github.event_name == 'pull_request'
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create report.md
