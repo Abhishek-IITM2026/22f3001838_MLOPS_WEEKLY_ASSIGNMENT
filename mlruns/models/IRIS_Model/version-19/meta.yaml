@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1784720672601
+current_stage: None
+description: null
+last_updated_timestamp: 1784720672601
+name: IRIS_Model
+run_id: 21f75d216c074807a3e7a0f5460947e8
+run_link: null
+source: file:///home/duttaabhishekiitm/22f3001838_MLOPS_WEEKLY_ASSIGNMENT/mlruns/254982745121708989/21f75d216c074807a3e7a0f5460947e8/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///home/duttaabhishekiitm/22f3001838_MLOPS_WEEKLY_ASSIGNMENT/mlruns/254982745121708989/21f75d216c074807a3e7a0f5460947e8/artifacts/model
+user_id: null
+version: 19

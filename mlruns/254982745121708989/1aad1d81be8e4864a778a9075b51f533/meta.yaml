@@ -1,0 +1,15 @@
+artifact_uri: file:///home/duttaabhishekiitm/22f3001838_MLOPS_WEEKLY_ASSIGNMENT/mlruns/254982745121708989/1aad1d81be8e4864a778a9075b51f533/artifacts
+end_time: 1784720693822
+entry_point_name: ''
+experiment_id: '254982745121708989'
+lifecycle_stage: active
+run_id: 1aad1d81be8e4864a778a9075b51f533
+run_name: depth_6_gini
+run_uuid: 1aad1d81be8e4864a778a9075b51f533
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1784720688536
+status: 3
+tags: []
+user_id: duttaabhishekiitm
