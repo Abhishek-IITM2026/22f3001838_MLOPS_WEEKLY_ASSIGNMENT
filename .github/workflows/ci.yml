@@ -55,6 +55,11 @@ jobs:
           mlflow --version
           pytest --version
 
+      # NEW STEP
+      - name: Train and Register MLflow Model
+        run: |
+          python train.py
+
       - name: Run Data & Model Tests
         run: |
           pytest -v | tee report.txt
