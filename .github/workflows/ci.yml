@@ -14,10 +14,12 @@ permissions:
   pull-requests: write
   id-token: write
 
-    
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      MLFLOW_TRACKING_URI: file:./mlruns
 
     steps:
       - name: Checkout Repository
@@ -46,14 +48,11 @@ jobs:
         run: |
           dvc pull --force
 
-      - name: Install CML
-        run: |
-          npm install -g @dvcorg/cml
-
       - name: Verify Installation
         run: |
           python --version
           pip --version
+          mlflow --version
           pytest --version
 
       - name: Run Data & Model Tests
