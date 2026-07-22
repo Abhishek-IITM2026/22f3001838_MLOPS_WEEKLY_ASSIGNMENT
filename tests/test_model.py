@@ -1,21 +1,22 @@
-import joblib
+import mlflow.pyfunc
 import pandas as pd
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 
-MODEL_PATH = "model/model.joblib"
 DATA_PATH = "data/iris.csv"
+
+# Load the latest registered model from MLflow Model Registry
+MODEL_URI = "models:/IRIS_Model/latest"
 
 
 def test_model_exists():
-    model = joblib.load(MODEL_PATH)
+    model = mlflow.pyfunc.load_model(MODEL_URI)
     assert model is not None
 
 
 def test_model_accuracy():
-
-    model = joblib.load(MODEL_PATH)
+    model = mlflow.pyfunc.load_model(MODEL_URI)
 
     df = pd.read_csv(DATA_PATH)
 
