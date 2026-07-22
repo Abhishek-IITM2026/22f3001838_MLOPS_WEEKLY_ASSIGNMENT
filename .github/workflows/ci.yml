@@ -48,6 +48,11 @@ jobs:
         run: |
           dvc pull --force
 
+      - name: Reset MLflow Tracking
+        run: |
+          rm -rf mlruns
+          rm -f mlflow.db
+
       - name: Verify Installation
         run: |
           python --version
@@ -55,7 +60,6 @@ jobs:
           mlflow --version
           pytest --version
 
-      # NEW STEP
       - name: Train and Register MLflow Model
         run: |
           python train.py
