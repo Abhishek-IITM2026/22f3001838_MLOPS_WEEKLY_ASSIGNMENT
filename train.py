@@ -1,40 +1,81 @@
-import sys
+import itertools
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 import numpy as np
-import joblib
-import os
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Get iteration number from command line (default to 1)
-iteration = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+# -----------------------
+# Load Dataset
+# -----------------------
+df = pd.read_csv("data/iris.csv")
 
-# 1. Load YOUR base data
-# Ensure your target column is appropriately named in your CSV. 
-# We'll assume the last column is the target for this example.
-df = pd.read_csv('data/iris.csv')
+X = df.iloc[:, :-1]
+y = df.iloc[:, -1]
 
-# 2. Augment data (add 20 noisy rows per iteration beyond the first)
-if iteration > 1:
-    np.random.seed(iteration)
-    noise = df.sample(n=20 * iteration, replace=True)
-    # Add slight numeric noise to the feature columns (all but the last column)
-    noise.iloc[:, :-1] += np.random.normal(0, 0.5, size=(len(noise), df.shape[1] - 1))
-    df = pd.concat([df, noise], ignore_index=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
+)
 
-# Ensure directories exist
-os.makedirs('data', exist_ok=True)
-os.makedirs('model', exist_ok=True)
+# -----------------------
+# MLflow Experiment
+# -----------------------
+mlflow.set_experiment("Iris_Classification")
 
-# 3. Save augmented data (Overwriting the local file so DVC can track the change)
-df.to_csv('data/iris.csv', index=False)
+# Hyperparameters to tune
+max_depth_list = [2, 4, 6]
+criterion_list = ["gini", "entropy"]
 
-# 4. Train model (Assuming the target column is the last column)
-X, y = df.iloc[:, :-1], df.iloc[:, -1]
-clf = DecisionTreeClassifier(random_state=42)
-clf.fit(X, y)
+for max_depth, criterion in itertools.product(max_depth_list, criterion_list):
 
-# 5. Save model
-model_path = 'model/model.joblib'
-joblib.dump(clf, model_path)
+    with mlflow.start_run():
 
-print(f"Iteration {iteration} complete | Data size: {len(df)} rows | Saved model to: {model_path}")
+        model = DecisionTreeClassifier(
+            max_depth=max_depth,
+            criterion=criterion,
+            random_state=42
+        )
+
+        model.fit(X_train, y_train)
+
+        predictions = model.predict(X_test)
+
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions, average="macro")
+        recall = recall_score(y_test, predictions, average="macro")
+        f1 = f1_score(y_test, predictions, average="macro")
+
+        # -----------------------
+        # Log Parameters
+        # -----------------------
+        mlflow.log_param("max_depth", max_depth)
+        mlflow.log_param("criterion", criterion)
+
+        # -----------------------
+        # Log Metrics
+        # -----------------------
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1_score", f1)
+
+        # -----------------------
+        # Log Model
+        # -----------------------
+        mlflow.sklearn.log_model(
+            sk_model=model,
+            artifact_path="model",
+            registered_model_name="IRIS_Model"
+        )
+
+        print(
+            f"Depth={max_depth} | "
+            f"Criterion={criterion} | "
+            f"Accuracy={accuracy:.4f}"
+        )
