@@ -1,408 +1,332 @@
-# Project Overview
+# MLflow Integration for IRIS Classification Pipeline
 
-This repository contains the solution for the **MLOps Week 4 Assignment**. The objective is to implement a complete **Continuous Integration (CI)** pipeline for an Iris Classification Machine Learning project.
+This repository contains an end-to-end Machine Learning pipeline for the **IRIS Classification** dataset with **MLflow Experiment Tracking**, **MLflow Model Registry**, **DVC Dataset Versioning**, and **GitHub Actions CI** integration.
 
-The project demonstrates:
-
-- Data Validation using PyTest
-- Model Evaluation using PyTest
-- Dataset & Model Versioning using DVC
-- Google Cloud Storage (GCS) as DVC Remote
-- GitHub Actions based Continuous Integration
-- Workload Identity Federation (WIF) for secure Google Cloud authentication
-- Continuous Machine Learning (CML) based reporting
+The project demonstrates how MLflow can be used to manage experiments, compare different hyperparameter configurations, register trained models, and automate testing through GitHub Actions.
 
 ---
 
-# Repository Structure
+## Project Overview
 
-```
+The objective of this project is to build a reproducible Machine Learning workflow by integrating modern MLOps tools.
+
+The pipeline performs the following tasks:
+
+- Loads the IRIS dataset
+- Trains a Decision Tree classifier
+- Performs hyperparameter tuning
+- Logs parameters and evaluation metrics using MLflow
+- Registers trained models in the MLflow Model Registry
+- Uses DVC to version only the dataset
+- Loads the latest registered model during evaluation
+- Executes automated testing through GitHub Actions
+
+---
+
+## Project Structure
+
+```text
 .
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── .dvc/
-│
 ├── data/
 │   ├── iris.csv
 │   └── iris.csv.dvc
-│
-├── model/
-│   └── model.joblib
 │
 ├── tests/
 │   ├── test_data.py
 │   └── test_model.py
 │
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
 ├── train.py
 ├── requirements.txt
-├── README.md
-└── .gitignore
-```
-
----
-
-# Project Workflow
-
-```
-Dataset
-   │
-   ▼
-DVC Remote (Google Cloud Storage)
-   │
-   ▼
-GitHub Repository
-   │
-   ▼
-GitHub Actions
-   │
-   ▼
-Authenticate using Workload Identity Federation
-   │
-   ▼
-dvc pull
-   │
-   ▼
-Run PyTest
-   │
-   ▼
-Generate Test Report
-   │
-   ▼
-CML Pull Request Comment
+├── dvc.yaml
+├── mlflow.db
+├── mlruns/
+└── README.md
 ```
 
 ---
 
 # Technologies Used
 
-- Python 3.12
+- Python
 - Scikit-Learn
-- Pandas
-- NumPy
-- PyTest
+- MLflow
 - DVC
-- Google Cloud Storage
+- Git
 - GitHub Actions
-- CML
-- Workload Identity Federation
+- Google Cloud Shell
 
 ---
 
-# Clone Repository
+# Pipeline Workflow
 
-```bash
-git clone https://github.com/Abhishek-IITM2026/22f3001838_MLOPS_WEEKLY_ASSIGNMENT.git
+The complete pipeline works in the following sequence:
 
-cd 22f3001838_MLOPS_WEEKLY_ASSIGNMENT
+```
+              DVC
+               │
+               ▼
+       Load IRIS Dataset
+               │
+               ▼
+      Train/Test Split
+               │
+               ▼
+ Hyperparameter Tuning
+               │
+               ▼
+ Train Decision Tree Models
+               │
+               ▼
+ Evaluate Performance
+               │
+               ▼
+ Log Parameters & Metrics
+        using MLflow
+               │
+               ▼
+ Register Model
+     in MLflow Registry
+               │
+               ▼
+ Load Latest Model
+     for Evaluation
+               │
+               ▼
+ Run Unit Tests
+               │
+               ▼
+ GitHub Actions CI
 ```
 
 ---
 
-# Create Virtual Environment
+# Input Dataset
 
-Linux / MacOS
+The project uses the classic **IRIS dataset** containing four numerical features:
+
+- Sepal Length
+- Sepal Width
+- Petal Length
+- Petal Width
+
+Target classes:
+
+- Iris-setosa
+- Iris-versicolor
+- Iris-virginica
+
+---
+
+# Hyperparameter Tuning
+
+The training pipeline performs exhaustive search over the following parameters:
+
+```python
+max_depth = [2, 4, 6]
+criterion = ["gini", "entropy"]
+```
+
+This generates six different experiments.
+
+---
+
+# MLflow Integration
+
+Each experiment automatically creates a new MLflow run.
+
+The following information is logged:
+
+## Parameters
+
+- max_depth
+- criterion
+- random_state
+
+## Metrics
+
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+
+## Model Artifact
+
+The trained model is automatically registered in the MLflow Model Registry as
+
+```
+IRIS_Model
+```
+
+Every execution creates a new registered model version.
+
+---
+
+# DVC Integration
+
+DVC is responsible only for versioning the dataset.
+
+Tracked:
+
+```
+data/iris.csv
+```
+
+The trained model is **not** tracked by DVC.
+
+Model versioning is completely managed by MLflow.
+
+---
+
+# Running the Project
+
+## Clone Repository
+
+```bash
+git clone <repository-url>
+cd <repository-name>
+```
+
+---
+
+## Create Virtual Environment
 
 ```bash
 python3 -m venv .venv
+```
 
+Activate
+
+Linux/Mac
+
+```bash
 source .venv/bin/activate
 ```
 
 Windows
 
-```powershell
-python -m venv .venv
-
+```bash
 .venv\Scripts\activate
 ```
 
 ---
 
-# Install Dependencies
+## Install Dependencies
 
 ```bash
-pip install --upgrade pip
-
 pip install -r requirements.txt
 ```
 
 ---
 
-# Configure DVC
-
-Initialize DVC
-
-```bash
-dvc init
-```
-
-Verify Remote
-
-```bash
-cat .dvc/config
-```
-
-Expected
-
-```ini
-[core]
-    remote = myremote
-
-['remote "myremote"']
-    url = gs://22f3001838-mlops-week2/dvcstore
-```
-
----
-
-# Pull Dataset and Model
+## Pull Dataset using DVC
 
 ```bash
 dvc pull
 ```
 
-Expected Output
-
-```
-Everything is up to date.
-```
-
 ---
 
-# Train Model
+## Train Model
 
 ```bash
 python train.py
 ```
 
-or
+This performs
 
-```bash
-python train.py 2
-```
+- hyperparameter tuning
+- model training
+- metric evaluation
+- MLflow logging
+- model registration
 
 ---
 
-# Run Tests
+# Launch MLflow UI
 
-Run complete test suite
+```bash
+mlflow ui --host 0.0.0.0 --port 5000
+```
+
+Open
+
+```
+http://localhost:5000
+```
+
+or use the Cloud Shell Preview URL.
+
+---
+
+# Running Tests
 
 ```bash
 pytest -v
 ```
 
-Run Data Validation Tests
+The evaluation pipeline loads the latest model directly from the MLflow Model Registry.
 
-```bash
-pytest tests/test_data.py -v
-```
-
-Run Model Evaluation Tests
-
-```bash
-pytest tests/test_model.py -v
-```
-
-Expected Output
-
-```
-=====================
-8 passed
-=====================
+```python
+MODEL_URI = "models:/IRIS_Model/latest"
 ```
 
 ---
 
-# Data Validation Tests
+# GitHub Actions
 
-The following validations are implemented:
+Whenever changes are pushed to GitHub, the workflow automatically performs the following steps:
 
-- Dataset exists
-- Schema validation
-- Missing value validation
-- Numeric feature validation
-- Species label validation
-- Numeric value validation
-
----
-
-# Model Evaluation Tests
-
-The following validations are implemented:
-
-- Model exists
-- Model loads successfully
-- Model prediction
-- Accuracy threshold verification
+1. Checkout repository
+2. Install Python dependencies
+3. Pull dataset using DVC
+4. Reset MLflow tracking store
+5. Train the model
+6. Register model in MLflow
+7. Execute all test cases
 
 ---
 
-# Continuous Integration
+# Challenges Faced
 
-GitHub Actions automatically executes on:
+During GitHub Actions execution, MLflow initially failed because the tracking directory contained absolute artifact paths from the development environment.
 
-- Every Push
-- Every Pull Request
-
-Workflow performs:
-
-1. Checkout Repository
-2. Setup Python
-3. Install Dependencies
-4. Authenticate to Google Cloud
-5. Setup gcloud
-6. Pull DVC Data
-7. Execute PyTest
-8. Generate Report
-9. Publish CML Comment
-
----
-
-# Workload Identity Federation
-
-GitHub Actions authenticates to Google Cloud using **Workload Identity Federation** instead of Service Account JSON Keys.
-
-Advantages:
-
-- No long-lived credentials
-- Improved security
-- Recommended authentication method by Google Cloud
-
----
-
-# Google Cloud Services Used
-
-- Google Cloud Storage
-- IAM
-- Workload Identity Federation
-- Cloud Shell
-
----
-
-# DVC Remote
-
-```
-Google Cloud Storage
-
-Bucket:
-gs://22f3001838-mlops-week2
-
-Directory:
-dvcstore
-```
-
----
-
-# GitHub Actions Workflow
-
-Location
-
-```
-.github/workflows/ci.yml
-```
-
-Main Steps
-
-- Checkout Repository
-- Setup Python
-- Install Dependencies
-- Authenticate Google Cloud
-- DVC Pull
-- Run Tests
-- Generate Report
-- CML Report
-
----
-
-# CI Trigger
+This was resolved by resetting the MLflow tracking store before every workflow execution.
 
 ```yaml
-on:
-  push:
-    branches:
-      - "**"
-
-  pull_request:
-    branches:
-      - "**"
+- name: Reset MLflow Tracking
+  run: |
+    rm -rf mlruns
+    rm -f mlflow.db
 ```
+
+This ensures that GitHub Actions creates a fresh tracking store during every CI run.
 
 ---
 
-# Example Workflow
+# Project Features
 
-```
-Developer Push
-
-        │
-
-        ▼
-
-GitHub Repository
-
-        │
-
-        ▼
-
-GitHub Actions
-
-        │
-
-        ▼
-
-Authenticate
-
-        │
-
-        ▼
-
-DVC Pull
-
-        │
-
-        ▼
-
-PyTest
-
-        │
-
-        ▼
-
-Generate Report
-
-        │
-
-        ▼
-
-Pull Request Comment
-```
-
----
-
-# Results
-
-✔ Data Validation Tests Passed
-
-✔ Model Evaluation Tests Passed
-
-✔ DVC Integration Successful
-
-✔ Google Cloud Authentication Successful
-
-✔ GitHub Actions Successful
-
-✔ CI Pipeline Successful
+- End-to-End ML Pipeline
+- MLflow Experiment Tracking
+- Hyperparameter Tuning
+- MLflow Model Registry
+- DVC Dataset Versioning
+- Automated Testing
+- GitHub Actions Continuous Integration
+- Reproducible Machine Learning Workflow
 
 ---
 
 # Future Improvements
 
-- Docker Containerization
-- MLflow Integration
-- Automated Model Deployment
-- Continuous Training
-- Monitoring using Vertex AI
+- Deploy the registered model using Vertex AI
+- Integrate a remote MLflow Tracking Server
+- Add model monitoring
+- Automate retraining pipeline
+- Support additional machine learning algorithms
 
 ---
 
@@ -410,12 +334,12 @@ Pull Request Comment
 
 **Abhishek Dutta**
 
-Roll Number: **22f3001838**
+IIT Madras BS Degree in Data Science and Applications
 
-IIT Madras BS Degree Programme
+Roll Number: **22f3001838**
 
 ---
 
 # License
 
-This project has been developed for the **IIT Madras MLOps Weekly Assignment**.
+This project is developed for academic purposes as part of the IIT Madras MLOps coursework.
