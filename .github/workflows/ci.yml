@@ -136,6 +136,16 @@ jobs:
         run: |
           kubectl rollout status deployment/iris-api
 
+
+      - name: Check Pods
+        run: |
+          kubectl get pods -o wide
+          kubectl get svc
+
+      - name: Check Endpoints
+        run: |
+          kubectl get endpoints iris-api-service
+
       - name: Install wrk
         run: |
           sudo apt-get update
@@ -163,6 +173,19 @@ jobs:
           done
           echo "Timed out waiting for External IP"
           exit 1
+
+      - name: Wait for API to become ready
+        run: |
+          echo "Waiting 60 seconds..."
+          sleep 60
+
+      - name: Test API
+        run: |
+          curl -v \
+            -X POST \
+            http://${{ env.EXTERNAL_IP }}/predict \
+            -H "Content-Type: application/json" \
+            -d '{"features":[5.1,3.5,1.4,0.2]}'
 
       - name: Run Stress Test
         run: |
