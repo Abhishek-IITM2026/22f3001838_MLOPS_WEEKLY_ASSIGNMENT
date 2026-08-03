@@ -7,6 +7,12 @@ metadata:
 spec:
   replicas: 1
 
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+
   selector:
     matchLabels:
       app: iris-api
@@ -24,3 +30,11 @@ spec:
 
         ports:
         - containerPort: 5000
+
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
