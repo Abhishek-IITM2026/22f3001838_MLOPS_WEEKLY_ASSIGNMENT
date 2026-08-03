@@ -456,9 +456,6 @@ The workflow automatically
 
 ---
 
-# License
-
-This project was developed as part of the IIT Madras MLOps Weekly Assignment and is intended for educational purposes.
 
 # Author
 
