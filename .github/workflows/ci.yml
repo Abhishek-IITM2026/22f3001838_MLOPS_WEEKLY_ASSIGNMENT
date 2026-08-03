@@ -135,3 +135,35 @@ jobs:
       - name: Wait for Rollout
         run: |
           kubectl rollout status deployment/iris-api
+
+      - name: Install wrk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wrk
+
+      - name: Create POST Script
+        run: |
+          cat > post.lua <<EOF
+          wrk.method = "POST"
+          wrk.headers["Content-Type"] = "application/json"
+          wrk.body = '{"features":[5.1,3.5,1.4,0.2]}'
+          EOF
+
+      - name: Wait for External IP
+        run: |
+          for i in {1..30}; do
+            EXTERNAL_IP=$(kubectl get svc iris-api-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            if [ -n "$EXTERNAL_IP" ]; then
+              echo "External IP: $EXTERNAL_IP"
+              echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+              exit 0
+            fi
+            echo "Waiting for LoadBalancer IP..."
+            sleep 10
+          done
+          echo "Timed out waiting for External IP"
+          exit 1
+
+      - name: Run Stress Test
+        run: |
+          wrk -t4 -c1000 -d30s -s post.lua http://${{ env.EXTERNAL_IP }}/predict
