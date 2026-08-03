@@ -1,425 +1,464 @@
-# IRIS Classification MLOps Pipeline
+# Stress Testing, Observability & Scaling the IRIS Pipeline
 
-## IIT Madras – MLOps Weekly Assignment (Week 6)
+## Overview
 
----
+This project demonstrates a complete Machine Learning Operations (MLOps) workflow for deploying, validating, monitoring, and scaling an IRIS Classification API on Google Kubernetes Engine (GKE).
 
-# Project Overview
+The project extends the CI/CD pipeline from the previous assignment by integrating automated stress testing, Kubernetes Horizontal Pod Autoscaling (HPA), Google Cloud Monitoring, and Google Cloud Logging.
 
-This project demonstrates a complete end-to-end Machine Learning Operations (MLOps) pipeline for the IRIS Flower Classification problem.
-
-The objective is to automate the entire machine learning lifecycle, beginning with data versioning and model training, followed by experiment tracking, continuous integration, containerization, continuous deployment, and cloud-based serving of predictions.
-
-The project integrates several modern MLOps tools and practices including:
-
-- MLflow for experiment tracking and model registry
-- DVC for dataset versioning
-- Flask for serving the machine learning model
-- Docker for containerization
-- GitHub Actions for Continuous Integration and Continuous Deployment
-- Google Artifact Registry for storing Docker images
-- Google Kubernetes Engine (GKE) for application deployment
+After every successful deployment, GitHub Actions automatically builds the Docker image, pushes it to Google Artifact Registry, deploys the latest version to GKE, and performs an automated stress test using `wrk`.
 
 ---
 
 # Objectives
 
-The objectives of this project are:
-
-- Develop an IRIS flower classification model.
-- Track machine learning experiments using MLflow.
-- Version datasets using DVC.
-- Build a REST API for inference using Flask.
-- Containerize the application using Docker.
-- Automate testing using GitHub Actions.
-- Store Docker images in Google Artifact Registry.
-- Deploy the application on Google Kubernetes Engine.
-- Build a complete CI/CD pipeline for automated deployment.
+- Deploy a containerized Flask API on GKE
+- Configure GitHub Actions for CI/CD
+- Push Docker images to Artifact Registry
+- Configure Horizontal Pod Autoscaler
+- Perform stress testing using wrk
+- Observe scaling behaviour
+- Monitor CPU and memory usage
+- Inspect application logs
+- Compare performance under different scaling configurations
 
 ---
 
 # Technology Stack
 
-| Category | Technology |
-|----------|------------|
-| Programming Language | Python 3.12 |
-| Machine Learning | Scikit-Learn |
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.12 |
+| Framework | Flask |
+| Machine Learning | Scikit-learn |
 | Experiment Tracking | MLflow |
 | Data Versioning | DVC |
-| REST API | Flask |
 | Containerization | Docker |
 | Container Registry | Google Artifact Registry |
-| Orchestration | Kubernetes (GKE) |
-| CI/CD | GitHub Actions |
+| Orchestration | Kubernetes |
 | Cloud Platform | Google Cloud Platform |
-| Version Control | Git & GitHub |
+| Cluster | Google Kubernetes Engine |
+| CI/CD | GitHub Actions |
+| Load Testing | wrk |
+| Monitoring | Google Cloud Monitoring |
+| Logging | Google Cloud Logging |
 
 ---
 
 # Repository Structure
 
-```text
-22f3001838_MLOPS_WEEKLY_ASSIGNMENT
+```
+week_7
 │
 ├── app.py
 ├── train.py
 ├── Dockerfile
 ├── deployment.yaml
 ├── service.yaml
+├── hpa.yaml
 ├── requirements.txt
-├── dvc.yaml
-├── dvc.lock
-│
-├── data/
-│   └── iris.csv
-│
 ├── model/
-│   └── model.joblib
+│     model.joblib
 │
-├── tests/
-│   ├── test_data.py
-│   └── test_model.py
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-└── README.md
+└── .github/
+      workflows/
+            ci.yml
 ```
 
 ---
 
-# Project Workflow
-
-```text
-                    Git Push
-                        │
-                        ▼
-               GitHub Actions
-                        │
-          ┌─────────────┴─────────────┐
-          │                           │
-          ▼                           ▼
-   Run Unit Tests              Train Model
-          │                           │
-          └─────────────┬─────────────┘
-                        ▼
-                 MLflow Logging
-                        │
-                        ▼
-               Build Docker Image
-                        │
-                        ▼
-          Push Image to Artifact Registry
-                        │
-                        ▼
-      Deploy to Google Kubernetes Engine
-                        │
-                        ▼
-             Flask Prediction API
-```
-
----
-
-# Dataset
-
-The project uses the IRIS dataset available in Scikit-Learn.
-
-### Features
-
-- Sepal Length
-- Sepal Width
-- Petal Length
-- Petal Width
-
-### Target Classes
-
-- Iris Setosa
-- Iris Versicolor
-- Iris Virginica
-
----
-
-# Machine Learning Pipeline
-
-The training pipeline consists of the following stages:
-
-1. Load the IRIS dataset.
-2. Split the dataset into training and testing sets.
-3. Train a Decision Tree classifier.
-4. Evaluate model accuracy.
-5. Log parameters and metrics using MLflow.
-6. Register the trained model.
-7. Save the trained model as `model.joblib`.
-
----
-
-# Experiment Tracking using MLflow
-
-MLflow is used for:
-
-- Tracking experiments
-- Logging parameters
-- Logging evaluation metrics
-- Registering trained models
-- Managing model versions
-
-Each training run records:
-
-- Accuracy
-- Hyperparameters
-- Model artifacts
-- Execution details
-
----
-
-# Data Version Control (DVC)
-
-DVC is used to manage dataset versions.
-
-Advantages include:
-
-- Dataset reproducibility
-- Version control for large files
-- Easy collaboration
-- Pipeline reproducibility
-
-Useful commands:
-
-```bash
-dvc add data/iris.csv
-dvc push
-dvc pull
-```
-
----
-
-# Flask Inference API
-
-The trained model is exposed through a Flask REST API.
-
-### Endpoint
+# Project Architecture
 
 ```
-POST /predict
-```
-
-### Sample Request
-
-```json
-{
-  "features": [5.1, 3.5, 1.4, 0.2]
-}
-```
-
-### Sample Response
-
-```json
-{
-  "prediction": "setosa"
-}
-```
-
----
-
-# Docker Containerization
-
-The application is packaged into a Docker image.
-
-Build the image:
-
-```bash
-docker build -t iris-api .
-```
-
-Run the container:
-
-```bash
-docker run -p 5000:5000 iris-api
-```
-
-The Docker image contains:
-
-- Flask application
-- Trained model
-- Python dependencies
-- REST API
-
----
-
-# Google Artifact Registry
-
-Docker images are stored in Google Artifact Registry.
-
-Repository:
-
-```
-us-central1-docker.pkg.dev/project-32301d32-7dfb-43f1-b1a/iris-repo
-```
-
-Push an image:
-
-```bash
-docker push us-central1-docker.pkg.dev/project-32301d32-7dfb-43f1-b1a/iris-repo/iris-api
-```
-
----
-
-# Google Kubernetes Engine
-
-The application is deployed on Google Kubernetes Engine.
-
-Deploy the application:
-
-```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
-```
-
-Verify deployment:
-
-```bash
-kubectl get deployments
-kubectl get pods
-kubectl get svc
-```
-
-Check deployment rollout:
-
-```bash
-kubectl rollout status deployment/iris-api
-```
-
----
-
-# Continuous Integration
-
-The GitHub Actions workflow automatically performs:
-
-- Repository checkout
-- Python environment setup
-- Dependency installation
-- DVC data retrieval
-- Model training
-- Unit testing
-- Report generation
-
----
-
-# Continuous Deployment
-
-After successful completion of the CI pipeline, the workflow automatically:
-
-1. Authenticates with Google Cloud.
-2. Configures Docker authentication.
-3. Builds the Docker image.
-4. Pushes the image to Artifact Registry.
-5. Connects to Google Kubernetes Engine.
-6. Updates the Kubernetes deployment.
-7. Applies Kubernetes manifests.
-8. Verifies successful rollout.
-
----
-
-# CI/CD Architecture
-
-```text
 Developer
-    │
-    ▼
-Git Push
-    │
-    ▼
+     │
+     ▼
+GitHub Repository
+     │
+     ▼
 GitHub Actions
-    │
-    ├── Unit Tests
-    ├── Model Training
-    ├── Docker Build
-    ├── Docker Push
-    └── Kubernetes Deployment
-                │
-                ▼
-Google Artifact Registry
+     │
+     ├── Install Dependencies
+     ├── Run Tests
+     ├── Train Model
+     ├── Build Docker Image
+     ├── Push Image to Artifact Registry
+     ├── Deploy to GKE
+     └── Execute Stress Test
                 │
                 ▼
 Google Kubernetes Engine
-                │
-                ▼
-Flask Prediction API
+        │
+        ▼
+IRIS Prediction API
+        │
+        ▼
+Horizontal Pod Autoscaler
+        │
+        ▼
+Cloud Monitoring & Cloud Logging
 ```
 
 ---
 
-# Running the Project Locally
+# Prerequisites
 
-Clone the repository:
+- Python 3.12
+- Docker
+- Git
+- Google Cloud SDK
+- kubectl
+- wrk
+- Google Cloud Project
+- GKE Cluster
+- Artifact Registry Repository
+
+---
+
+# Clone Repository
 
 ```bash
-git clone https://github.com/Abhishek-IITM2026/22f3001838_MLOPS_WEEKLY_ASSIGNMENT.git
+git clone https://github.com/<username>/<repository>.git
+
+cd <repository>
 ```
 
-Navigate to the project:
+---
+
+# Create Virtual Environment
 
 ```bash
-cd 22f3001838_MLOPS_WEEKLY_ASSIGNMENT
+python3 -m venv .venv
+
+source .venv/bin/activate
 ```
 
-Install dependencies:
+---
+
+# Install Dependencies
 
 ```bash
+pip install --upgrade pip
+
 pip install -r requirements.txt
 ```
 
-Train the model:
+---
+
+# Train Model
 
 ```bash
 python train.py
 ```
 
-Run the API:
+The script:
+
+- Loads the IRIS dataset
+- Trains Decision Tree Classifier
+- Logs experiments using MLflow
+- Stores model as
+
+```
+model/model.joblib
+```
+
+---
+
+# Run API Locally
 
 ```bash
 python app.py
 ```
 
----
+Default endpoint
 
-# Testing the API
+```
+http://127.0.0.1:5000
+```
+
+Prediction
 
 ```bash
-curl http://localhost:5000/predict \
+curl -X POST http://127.0.0.1:5000/predict \
 -H "Content-Type: application/json" \
 -d '{"features":[5.1,3.5,1.4,0.2]}'
 ```
 
-Expected response:
+---
 
-```json
-{
-  "prediction": "setosa"
-}
+# Build Docker Image
+
+```bash
+docker build -t iris-api .
+```
+
+Run container
+
+```bash
+docker run -p 5000:5000 iris-api
 ```
 
 ---
 
-# Learning Outcomes
+# Kubernetes Deployment
 
-This project provided practical experience with:
+Deploy application
 
-- Machine Learning model deployment
-- MLflow experiment tracking
-- Dataset versioning using DVC
-- REST API development with Flask
-- Docker containerization
-- Kubernetes deployments
-- Google Artifact Registry
-- Google Kubernetes Engine
-- GitHub Actions
-- Continuous Integration
-- Continuous Deployment
-- Secure cloud authentication using Workload Identity Federation
+```bash
+kubectl apply -f deployment.yaml
+```
+
+Deploy service
+
+```bash
+kubectl apply -f service.yaml
+```
+
+Verify deployment
+
+```bash
+kubectl get deployments
+
+kubectl get pods
+
+kubectl get svc
+```
 
 ---
+
+# Horizontal Pod Autoscaler
+
+Create HPA
+
+```bash
+kubectl apply -f hpa.yaml
+```
+
+Verify
+
+```bash
+kubectl get hpa
+```
+
+Configuration
+
+```
+Minimum Replicas : 1
+
+Maximum Replicas : 3
+
+CPU Target : 50%
+```
+
+---
+
+# GitHub Actions Workflow
+
+The workflow performs the following automatically:
+
+1. Checkout Repository
+2. Setup Python
+3. Install Dependencies
+4. Authenticate with Google Cloud
+5. Pull DVC Data
+6. Train Model
+7. Execute Unit Tests
+8. Generate Test Report
+9. Build Docker Image
+10. Push Image to Artifact Registry
+11. Deploy Latest Image to GKE
+12. Wait for Rollout
+13. Install wrk
+14. Perform Automated Stress Test
+
+---
+
+# Stress Testing
+
+Install
+
+```bash
+sudo apt install wrk
+```
+
+POST request script
+
+```lua
+wrk.method="POST"
+
+wrk.headers["Content-Type"]="application/json"
+
+wrk.body='{"features":[5.1,3.5,1.4,0.2]}'
+```
+
+Execute
+
+```bash
+wrk -t4 -c1000 -d60s -s post.lua http://<EXTERNAL_IP>/predict
+```
+
+Example Output
+
+```
+Requests/sec : 240
+
+Latency : 623 ms
+
+Socket Timeouts : 525
+```
+
+---
+
+# Bottleneck Analysis
+
+### Scenario 1
+
+```
+Max Replicas : 3
+
+Connections : 1000
+```
+
+Observed
+
+- Lower latency
+- Higher throughput
+- Additional Pods created
+- Better request handling
+
+---
+
+### Scenario 2
+
+```
+Max Replicas : 1
+
+Connections : 2000
+```
+
+Observed
+
+- CPU saturation
+- High latency
+- Increased socket timeout
+- Lower requests/sec
+- Service bottleneck
+
+---
+
+# Monitoring
+
+Google Cloud Monitoring was used to observe
+
+- CPU Utilization
+- Memory Usage
+- Pod Scaling
+- Cluster Resources
+- Workload Metrics
+
+---
+
+# Logging
+
+Google Cloud Logging was used to inspect
+
+- Container Logs
+- Flask Logs
+- Pod Logs
+- Runtime Errors
+- Request Processing
+
+---
+
+# Useful Kubernetes Commands
+
+```bash
+kubectl get pods
+
+kubectl get svc
+
+kubectl get deployments
+
+kubectl get hpa
+
+kubectl top pods
+
+kubectl top nodes
+
+kubectl logs <pod>
+
+kubectl describe pod <pod>
+
+kubectl rollout status deployment/iris-api
+
+kubectl rollout history deployment/iris-api
+```
+
+---
+
+# GitHub Actions
+
+Push changes
+
+```bash
+git add .
+
+git commit -m "Week 7 Assignment"
+
+git push origin week_7
+```
+
+The workflow automatically
+
+- Builds Docker Image
+- Pushes Image
+- Deploys to GKE
+- Executes Stress Test
+
+---
+
+# Performance Summary
+
+| Configuration | Throughput | Latency | Result |
+|--------------|-----------|---------|--------|
+| 3 Replicas / 1000 Connections | High | Lower | Stable |
+| 1 Replica / 2000 Connections | Low | High | Bottleneck Observed |
+
+---
+
+# Key Learnings
+
+- Docker containerization
+- Kubernetes deployments
+- Google Kubernetes Engine
+- Google Artifact Registry
+- GitHub Actions CI/CD
+- Workload Identity Federation
+- Horizontal Pod Autoscaler
+- Stress Testing with wrk
+- Cloud Monitoring
+- Cloud Logging
+- Production deployment workflow
+- Observability and scalability of ML APIs
+
+---
+
+# Future Improvements
+
+- Canary Deployments
+- Blue-Green Deployment
+- Prometheus Metrics
+- Grafana Dashboards
+- Distributed Tracing
+- HTTPS with Ingress
+- Custom Metrics Autoscaling
+- Automated Rollbacks
+
+---
+
+# License
+
+This project was developed as part of the IIT Madras MLOps Weekly Assignment and is intended for educational purposes.
 
 # Author
 
