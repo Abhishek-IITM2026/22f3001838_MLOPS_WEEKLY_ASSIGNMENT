@@ -1,0 +1,15 @@
+artifact_uri: file:///home/duttaabhishekiitm/22f3001838_MLOPS_WEEKLY_ASSIGNMENT/mlruns/390679130298083419/1b42bf1af8ce4430add02003f437f84a/artifacts
+end_time: 1786257380094
+entry_point_name: ''
+experiment_id: '390679130298083419'
+lifecycle_stage: active
+run_id: 1b42bf1af8ce4430add02003f437f84a
+run_name: poison_5
+run_uuid: 1b42bf1af8ce4430add02003f437f84a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1786257374863
+status: 3
+tags: []
+user_id: duttaabhishekiitm

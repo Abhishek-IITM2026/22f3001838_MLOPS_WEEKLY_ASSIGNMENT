@@ -1,11 +1,11 @@
 import mlflow
 import mlflow.sklearn
-import mlflow
 
 mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("week8_mlsecops")
 
 import pandas as pd
+from scipy import stats
 
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -42,8 +42,23 @@ for poison_level, file in datasets.items():
 
         df = pd.read_csv(file)
 
+   #df = df[
+    #    (df.iloc[:, 0] >= 0) &
+    #    (df.iloc[:, 1] >= 0) &
+    #    (df.iloc[:, 2] >= 0) &
+    #    (df.iloc[:, 3] >= 0)
+    #]
+
     X = df.drop("target", axis=1)
     y = df["target"]
+
+
+    #z_scores = abs(stats.zscore(X))
+
+    #mask = (z_scores < 3).all(axis=1)
+
+    #X = X[mask]
+    #y = y[mask]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -81,12 +96,17 @@ for poison_level, file in datasets.items():
     )
 
     with mlflow.start_run(
-        run_name=f"poison_{poison_level}"
+        run_name=f"poison_{poison_level}_mitigated"
     ):
 
         mlflow.log_param(
             "poison_level",
             poison_level
+        )
+
+        mlflow.log_param(
+            "mitigation",
+            "range_validation+zscore"
         )
 
         mlflow.log_metric(
