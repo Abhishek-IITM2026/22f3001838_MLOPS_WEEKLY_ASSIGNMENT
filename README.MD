@@ -48,7 +48,7 @@ After every successful deployment, GitHub Actions automatically builds the Docke
 # Repository Structure
 
 ```
-week_7
+week_9
 │
 ├── app.py
 ├── train.py
