@@ -111,3 +111,21 @@ v2_compliance = (
 )
 
 print("Format Compliance:", v2_compliance)
+# Threshold check
+
+v1_accuracy = accuracy_score(actual, v1_preds)
+v2_accuracy = accuracy_score(actual, v2_preds)
+
+THRESHOLD = 0.90
+
+if v1_accuracy < THRESHOLD:
+    raise Exception(
+        f"V1 accuracy {v1_accuracy:.3f} below threshold {THRESHOLD}"
+    )
+
+if v2_accuracy < THRESHOLD:
+    raise Exception(
+        f"V2 accuracy {v2_accuracy:.3f} below threshold {THRESHOLD}"
+    )
+
+print("\nLLMOps Evaluation Passed")
