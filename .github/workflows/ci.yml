@@ -231,7 +231,6 @@ jobs:
 
     if: github.ref == 'refs/heads/week_11'
 
-    needs: test
 
     runs-on: ubuntu-latest
 
