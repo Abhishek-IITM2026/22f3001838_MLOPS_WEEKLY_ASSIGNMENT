@@ -229,6 +229,10 @@ jobs:
 
   governance:
 
+    if: github.ref == 'refs/heads/week_11'
+
+    needs: test
+
     runs-on: ubuntu-latest
 
     steps:
@@ -239,21 +243,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: |
-          pip install -r requirements.txt
-      - name: Install LLM Dependencies
+      - name: Install Dependencies
         run: |
-            pip install google-genai
+          pip install -r requirements.txt
+          pip install google-genai
       
-      - name: Authenticate
+      - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: projects/58620345939/locations/global/workloadIdentityPools/github-pool/providers/github-weekly-provider
           service_account: github-actions@project-32301d32-7dfb-43f1-b1a.iam.gserviceaccount.com
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - name: Install gcloud
+        uses: google-github-actions/setup-gcloud@v2
 
-      - name: Run Governance Tests
+      - name: Run Injection Tests
         run: |
-          python redteam.py
+          python redteam_injection.py
+
+      - name: Run Leakage Tests
+        run: |
+          python redteam_leakage.py
+
+      - name: Run Guardrail Evaluation
+        run: |
           python evaluate_guardrails.py
+  
