@@ -21,7 +21,6 @@ VALID_SPECIES = [
 
 
 def log_event(filename, reason, content):
-
     with open(filename, "a") as f:
         f.write(
             f"{datetime.now()},{reason},{content}\n"
@@ -32,6 +31,7 @@ def input_guardrail(prompt):
 
     lower = prompt.lower()
 
+    # Rule-based detection
     for phrase in BLOCKLIST:
 
         if phrase in lower:
@@ -47,6 +47,7 @@ def input_guardrail(prompt):
                 "reason": phrase
             }
 
+    # Structural validation
     if (
         "sepal_length" not in lower
         and
@@ -92,10 +93,12 @@ def output_guardrail(response):
 
             return "BLOCKED_OUTPUT"
 
-    for species in VALID_SPECIES:
+    import re
 
-        if species in text:
+    for species in VALID_SPECIES:
+        if re.search(rf"\b{species}\b", text):
             return species
+
 
     log_event(
         "blocked_outputs.log",
